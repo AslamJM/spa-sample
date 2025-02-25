@@ -9,12 +9,12 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const [loading, setLoading] = useState(false);
-  const { initiateUser } = useAuth();
+  const { initiateUser, accessToken } = useAuth();
 
   useEffect(() => {
     setLoading(true);
     initiateUser().then(() => setLoading(false));
-  }, []);
+  }, [accessToken]);
 
   if (loading) {
     <div className="flex items-center justify-center h-screen">Loading...</div>;

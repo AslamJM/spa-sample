@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { login } from "../api/auth";
 import { useAuth } from "../hooks/useAuth";
 import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
@@ -13,56 +16,52 @@ function RouteComponent() {
 
   useEffect(() => {
     if (user) {
-      navigate({ to: "/org" });
+      const isSuperAdmin = user.role.role_level.level === 0;
+      const orgId = user.role.role_level.organization_id;
+      if (isSuperAdmin) {
+        navigate({ to: "/orgs" });
+      } else {
+        navigate({ to: "/orgs/$id", params: { id: orgId } });
+      }
     }
   }, [user]);
 
   return (
     <div className="flex items-center justify-center h-full">
-      <div className="space-y-4 p-4 w-[600px] border-amber-600 border-[1px] shadow-amber-500 shadow-sm">
-        <h5>Login</h5>
-        <form
-          className="space-y-4"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const payload = {
-              email: formData.get("email") as string,
-              password: formData.get("password") as string,
-            };
-            const token = await login(payload);
-            if (token) {
-              setAccessToken(token);
-              await initiateUser();
-              await Promise.resolve(() => setTimeout(() => {}, 1));
-            }
-          }}
-        >
-          <div>
-            <input
-              name="email"
-              type="email"
-              placeholder="email"
-              className="p-2 border-amber-500 rounded w-[350px] border-[1px] focus:border-2"
-            />
-          </div>
-          <div>
-            <input
-              name="password"
-              placeholder="password"
-              className="p-2 border-amber-500 rounded w-[350px] border-[1px] focus:border-2"
-            />
-          </div>
-          <div>
-            <button
-              type="submit"
-              className="px-2 py-4 bg-amber-600 text-amber-50 w-[200px] rounded cursor-pointer"
-            >
-              Login
-            </button>
-          </div>
-        </form>
-      </div>
+      <Card className="w-[600px]">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form
+            className="space-y-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const payload = {
+                email: formData.get("email") as string,
+                password: formData.get("password") as string,
+              };
+              const token = await login(payload);
+              if (token) {
+                setAccessToken(token);
+                await initiateUser();
+                await Promise.resolve(() => setTimeout(() => {}, 1));
+              }
+            }}
+          >
+            <div>
+              <Input name="email" type="email" placeholder="email" />
+            </div>
+            <div>
+              <Input name="password" placeholder="password" />
+            </div>
+            <div>
+              <Button type="submit">Login</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

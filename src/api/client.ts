@@ -1,15 +1,13 @@
 import axios from 'axios';
-import { useStore } from '../store'; // Adjust the import according to your store file location
 import { useMemo } from 'react';
-
+import { logout } from './auth';
+import { useStore } from '@/store';
 const API = 'http://localhost:3500/sapi';
 
 const useAxios = () => {
 
     const accessToken = useStore((state) => state.token);
     const setAccessToken = useStore((state) => state.setToken);
-
-
 
     const axiosInstance = useMemo(() => {
         const instance = axios.create({
@@ -33,22 +31,29 @@ const useAxios = () => {
         );
 
         instance.interceptors.response.use(
-            (response) => {
-                return response;
-            },
+            (response) => response,
             async (error) => {
                 const originalRequest = error.config;
-                if (error.response.status === 401 && !originalRequest._retry) {
+
+                if (error.response?.status === 401 && !originalRequest._retry) {
                     originalRequest._retry = true;
                     try {
-                        const response = await axios.post<{ data: { access_token: string } }>
-                            (`${API}/auth/spa-refresh`, {}, { withCredentials: true });
-                        if (response.status === 201) {
-                            setAccessToken(response.data.data.access_token);
-                            instance.defaults.headers.common['Authorization'] = `Bearer ${response.data.data.access_token}`;
+                        const response = await axios.post<{
+                            data: {
+                                access_token: string;
+                            }
+                        }>(`${API}/auth/spa-refresh`, {}, {
+                            withCredentials: true
+                        });
+
+                        if (response.status === 200 || response.status === 201) {
+                            const { access_token } = response.data.data;
+                            setAccessToken(access_token);
+                            instance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
                             return instance(originalRequest);
                         }
                     } catch (refreshError) {
+                        await logout();
                         return Promise.reject(refreshError);
                     }
                 }

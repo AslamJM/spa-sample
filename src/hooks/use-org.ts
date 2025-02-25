@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import useAxios from "../api/client"
 
 type Organization = {
@@ -22,6 +22,11 @@ export type Role = {
     can_read: boolean
     can_update: boolean
     can_delete: boolean
+    users: {
+        id: number
+        name: string
+        email: string
+    }[]
 }
 
 export type RoleLevel = {
@@ -48,13 +53,51 @@ export const useOrgs = () => {
         return data.data
     }
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ["org"],
-        queryFn
+        queryFn,
+
     })
 
-    return { data, isLoading }
+    return { data, isLoading, refetch }
 }
+
+export const useCreateOrg = () => {
+    const client = useAxios()
+
+    const { refetch } = useOrgs()
+
+    const createOrg = async (input: {
+        name: string,
+        user: {
+            name: string,
+            email: string,
+            password: string
+        }
+    }) => {
+        const res = await client.post("/organizations", input)
+        if (res.status === 201) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: createOrg,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        create: mutateAsync,
+        loading: isPending
+    }
+}
+
+
 
 export const useSingleOrg = (id: string) => {
     const client = useAxios()
@@ -64,10 +107,112 @@ export const useSingleOrg = (id: string) => {
         return data.data
     }
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: ["org", id],
         queryFn
     })
 
-    return { data, isLoading }
+    return { data, isLoading, refetch }
+}
+
+export const useCreateRoleLevel = (id: string) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+    const createRoleLevel = async (level: number) => {
+        const res = await client.post(`/organizations/${id}/role-levels/${level}`)
+        if (res.status === 201) {
+            return true
+        }
+        return false
+    }
+
+    const { mutate, isPending } = useMutation({
+        mutationFn: createRoleLevel,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        create: mutate,
+        loading: isPending
+    }
+}
+
+
+export const useCreateRole = (id: string) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+    const createRole = async ({ level, role }: { level: number, role: Omit<Role, "id" | "users"> }) => {
+        const res = await client.post(`/organizations/${id}/roles/${level}`, role)
+        console.log(res.data);
+
+        if (res.status === 201) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: createRole,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        create: mutateAsync,
+        loading: isPending
+    }
+}
+
+export const useCreateUser = ({ id, }: {
+    id: string,
+
+}) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+
+
+    const createUser = async (input: {
+        name: string,
+        email: string,
+        password: string
+        roleId: number,
+        level: number
+    }) => {
+        const { roleId, level, ...rest } = input
+        const res = await client.post(`/organizations/${id}/users/${level}`, {
+            ...rest,
+            role: { connect: { id: roleId } }
+        })
+        if (res.status === 201) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: createUser,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        create: mutateAsync,
+        loading: isPending
+    }
 }

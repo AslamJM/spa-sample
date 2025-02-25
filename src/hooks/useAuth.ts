@@ -1,3 +1,4 @@
+import { login, logout } from "@/api/auth";
 import useAxios from "../api/client";
 import { User, useStore } from "../store";
 
@@ -11,15 +12,38 @@ export const useAuth = () => {
 
     const client = useAxios()
 
+    const loginUser = async (email: string, password: string) => {
+        try {
+            const token = await login({ email, password })
+            setAccessToken(token)
+            await initiateUser()
+            return true // Return success status
+        } catch (error) {
+            console.error('Login failed:', error)
+            return false
+        }
+    }
+
     const initiateUser = async () => {
         const { data } = await client.get<{ data: User }>('/auth/profile');
 
         if (data.data) {
             setUser(data.data)
+            return data.data
         } else {
+            setUser(null)
+            return null
+        }
+    }
+
+    const logoutUser = async () => {
+        const res = await logout()
+
+        if (res.success) {
+            setAccessToken(null)
             setUser(null)
         }
     }
 
-    return { accessToken, setAccessToken, user, setUser, initiateUser }
+    return { accessToken, setAccessToken, user, setUser, initiateUser, loginUser, logoutUser }
 }
