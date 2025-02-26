@@ -31,6 +31,7 @@ export const Route = createFileRoute("/_auth/orgs/$id/level")({
 function RouteComponent() {
   const search = Route.useSearch();
   const params = Route.useParams();
+  const navigate = Route.useNavigate();
 
   const { data, isLoading } = useSingleOrg(params.id);
   const { create, remove } = useAbility();
@@ -224,12 +225,17 @@ function RouteComponent() {
                       <Button
                         variant="destructive"
                         disabled={removeRoleLoading}
-                        onClick={() =>
-                          removeRoleHandle(
+                        onClick={async () => {
+                          await removeRoleHandle(
                             sectionData.roles.find((r) => r.id === search.role)!
                               .id
-                          )
-                        }
+                          );
+                          navigate({
+                            to: "/orgs/$id/level",
+                            params: { id: params.id },
+                            search: { level: search.level },
+                          });
+                        }}
                       >
                         {removeRoleLoading ? "Removing..." : "Remove"}
                       </Button>
