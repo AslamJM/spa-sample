@@ -216,3 +216,61 @@ export const useCreateUser = ({ id, }: {
         loading: isPending
     }
 }
+
+export const useUpdateOrg = (id: string) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+    const updateOrg = async (input: {
+        name: string
+    }) => {
+        const res = await client.patch(`/organizations/${id}`, input)
+        if (res.status === 200) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: updateOrg,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        update: mutateAsync,
+        loading: isPending
+    }
+}
+
+export const useRemoveRole = (id: string,) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+    const removeRole = async ({ level, role }: { level: number, role: number }) => {
+        const res = await client.delete(`/organizations/${id}/roles/${level}/${role}`)
+        if (res.status === 200) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: removeRole,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        remove: mutateAsync,
+        loading: isPending
+    }
+}

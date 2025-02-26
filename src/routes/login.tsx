@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { login } from "../api/auth";
 import { useAuth } from "../hooks/useAuth";
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,23 +10,11 @@ export const Route = createFileRoute("/login")({
 });
 
 function RouteComponent() {
-  const { setAccessToken, user, initiateUser } = useAuth();
+  const { setAccessToken, setUser, initiateUser } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      const isSuperAdmin = user.role.role_level.level === 0;
-      const orgId = user.role.role_level.organization_id;
-      if (isSuperAdmin) {
-        navigate({ to: "/orgs" });
-      } else {
-        navigate({ to: "/orgs/$id", params: { id: orgId } });
-      }
-    }
-  }, [user]);
-
   return (
-    <div className="flex items-center justify-center h-full">
+    <div className="flex items-center justify-center h-full bg-[#88AAEEB3]">
       <Card className="w-[600px]">
         <CardHeader>
           <CardTitle>Login</CardTitle>
@@ -42,11 +29,20 @@ function RouteComponent() {
                 email: formData.get("email") as string,
                 password: formData.get("password") as string,
               };
-              const token = await login(payload);
+              const { token, user } = await login(payload);
               if (token) {
                 setAccessToken(token);
+                setUser(user);
                 await initiateUser();
-                await Promise.resolve(() => setTimeout(() => {}, 1));
+                if (user) {
+                  const isSuperAdmin = user.role.role_level.level === 0;
+                  const orgId = user.role.role_level.organization_id;
+                  if (isSuperAdmin) {
+                    navigate({ to: "/orgs" });
+                  } else {
+                    navigate({ to: "/orgs/$id", params: { id: orgId } });
+                  }
+                }
               }
             }}
           >

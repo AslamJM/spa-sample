@@ -21,7 +21,14 @@ function RouteComponent() {
   if (data) {
     return (
       <div className="space-y-2 w-full">
-        <h5 className="text-center font-semibold">🏫 {data.name}</h5>
+        <div className="flex justify-between items-center">
+          <h5 className=" font-semibold">🏫 {data.name}</h5>
+          <Button variant="link" asChild>
+            <Link to={`/orgs/$id/settings`} params={{ id: params.id }}>
+              Settings ➡️
+            </Link>
+          </Button>
+        </div>
         <hr />
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-1 border-r border-slate-300 ">

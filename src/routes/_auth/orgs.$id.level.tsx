@@ -9,7 +9,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAbility } from "@/hooks/use-ability";
-import { useCreateUser, useSingleOrg, useCreateRole } from "@/hooks/use-org";
+import {
+  useCreateUser,
+  useSingleOrg,
+  useCreateRole,
+  useRemoveRole,
+} from "@/hooks/use-org";
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -28,11 +33,14 @@ function RouteComponent() {
   const params = Route.useParams();
 
   const { data, isLoading } = useSingleOrg(params.id);
-  const { create } = useAbility();
+  const { create, remove } = useAbility();
   const { create: createRole, loading } = useCreateRole(params.id);
   const { create: createUser, loading: createUserLoading } = useCreateUser({
     id: params.id,
   });
+  const { remove: removeRole, loading: removeRoleLoading } = useRemoveRole(
+    params.id
+  );
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -46,11 +54,20 @@ function RouteComponent() {
   if (sectionData) {
     const roles = sectionData.roles;
 
+    const removeRoleHandle = async (id: number) => {
+      await removeRole({ level: search.level!, role: id });
+    };
+
     return (
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-4">
-          <h3>LEVEL - {search.level}</h3>
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold">LEVEL - {search.level}</h3>
           <div className="space-y-2">
+            {roles.length === 0 && (
+              <h6 className=" text-sm text-muted-foreground">
+                No Roles Created
+              </h6>
+            )}
             {roles.map((r) => (
               <Button
                 variant="ghost"
@@ -118,10 +135,29 @@ function RouteComponent() {
               </AccordionItem>
             </Accordion>
           )}
+          {remove && (
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-4">
+                <AccordionTrigger>Remove Level</AccordionTrigger>
+                <AccordionContent className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    This will remove the level and all roles and users in that
+                    level.
+                  </p>
+                  <Button variant="destructive" disabled={removeRoleLoading}>
+                    {removeRoleLoading ? "Removing..." : "Remove"}
+                  </Button>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          )}
         </div>
         <div>
           {search.role ? (
             <div className="space-y-2">
+              <h3 className="text-sm font-semibold">
+                {sectionData.roles.find((r) => r.id === search.role)?.name}
+              </h3>
               <h5 className="text-sm font-semibold">Users</h5>
               <hr />
               {sectionData.roles
@@ -176,10 +212,37 @@ function RouteComponent() {
                   </AccordionItem>
                 </Accordion>
               )}
+              {remove && (
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="item-3">
+                    <AccordionTrigger>Remove Role</AccordionTrigger>
+                    <AccordionContent>
+                      <p className="text-sm text-muted-foreground">
+                        This will remove the role and all users with that role
+                        will be removed.
+                      </p>
+                      <Button
+                        variant="destructive"
+                        disabled={removeRoleLoading}
+                        onClick={() =>
+                          removeRoleHandle(
+                            sectionData.roles.find((r) => r.id === search.role)!
+                              .id
+                          )
+                        }
+                      >
+                        {removeRoleLoading ? "Removing..." : "Remove"}
+                      </Button>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
             </div>
           ) : (
             <div>
-              <h6 className="text-muted-foreground">No Role Selected</h6>
+              <h6 className=" text-sm text-muted-foreground">
+                No Role Selected
+              </h6>
             </div>
           )}
         </div>

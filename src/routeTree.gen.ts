@@ -17,6 +17,7 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthOrgsIndexImport } from './routes/_auth/orgs.index'
 import { Route as AuthOrgsIdImport } from './routes/_auth/orgs.$id'
+import { Route as AuthOrgsIdSettingsImport } from './routes/_auth/orgs.$id.settings'
 import { Route as AuthOrgsIdLevelImport } from './routes/_auth/orgs.$id.level'
 
 // Create/Update Routes
@@ -54,6 +55,12 @@ const AuthOrgsIdRoute = AuthOrgsIdImport.update({
   id: '/orgs/$id',
   path: '/orgs/$id',
   getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthOrgsIdSettingsRoute = AuthOrgsIdSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthOrgsIdRoute,
 } as any)
 
 const AuthOrgsIdLevelRoute = AuthOrgsIdLevelImport.update({
@@ -115,6 +122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthOrgsIdLevelImport
       parentRoute: typeof AuthOrgsIdImport
     }
+    '/_auth/orgs/$id/settings': {
+      id: '/_auth/orgs/$id/settings'
+      path: '/settings'
+      fullPath: '/orgs/$id/settings'
+      preLoaderRoute: typeof AuthOrgsIdSettingsImport
+      parentRoute: typeof AuthOrgsIdImport
+    }
   }
 }
 
@@ -122,10 +136,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthOrgsIdRouteChildren {
   AuthOrgsIdLevelRoute: typeof AuthOrgsIdLevelRoute
+  AuthOrgsIdSettingsRoute: typeof AuthOrgsIdSettingsRoute
 }
 
 const AuthOrgsIdRouteChildren: AuthOrgsIdRouteChildren = {
   AuthOrgsIdLevelRoute: AuthOrgsIdLevelRoute,
+  AuthOrgsIdSettingsRoute: AuthOrgsIdSettingsRoute,
 }
 
 const AuthOrgsIdRouteWithChildren = AuthOrgsIdRoute._addFileChildren(
@@ -152,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/orgs/$id': typeof AuthOrgsIdRouteWithChildren
   '/orgs': typeof AuthOrgsIndexRoute
   '/orgs/$id/level': typeof AuthOrgsIdLevelRoute
+  '/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
 }
 
 export interface FileRoutesByTo {
@@ -162,6 +179,7 @@ export interface FileRoutesByTo {
   '/orgs/$id': typeof AuthOrgsIdRouteWithChildren
   '/orgs': typeof AuthOrgsIndexRoute
   '/orgs/$id/level': typeof AuthOrgsIdLevelRoute
+  '/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
 }
 
 export interface FileRoutesById {
@@ -173,6 +191,7 @@ export interface FileRoutesById {
   '/_auth/orgs/$id': typeof AuthOrgsIdRouteWithChildren
   '/_auth/orgs/': typeof AuthOrgsIndexRoute
   '/_auth/orgs/$id/level': typeof AuthOrgsIdLevelRoute
+  '/_auth/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
 }
 
 export interface FileRouteTypes {
@@ -185,8 +204,17 @@ export interface FileRouteTypes {
     | '/orgs/$id'
     | '/orgs'
     | '/orgs/$id/level'
+    | '/orgs/$id/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/about' | '/login' | '/orgs/$id' | '/orgs' | '/orgs/$id/level'
+  to:
+    | '/'
+    | ''
+    | '/about'
+    | '/login'
+    | '/orgs/$id'
+    | '/orgs'
+    | '/orgs/$id/level'
+    | '/orgs/$id/settings'
   id:
     | '__root__'
     | '/'
@@ -196,6 +224,7 @@ export interface FileRouteTypes {
     | '/_auth/orgs/$id'
     | '/_auth/orgs/'
     | '/_auth/orgs/$id/level'
+    | '/_auth/orgs/$id/settings'
   fileRoutesById: FileRoutesById
 }
 
@@ -249,7 +278,8 @@ export const routeTree = rootRoute
       "filePath": "_auth/orgs.$id.tsx",
       "parent": "/_auth",
       "children": [
-        "/_auth/orgs/$id/level"
+        "/_auth/orgs/$id/level",
+        "/_auth/orgs/$id/settings"
       ]
     },
     "/_auth/orgs/": {
@@ -258,6 +288,10 @@ export const routeTree = rootRoute
     },
     "/_auth/orgs/$id/level": {
       "filePath": "_auth/orgs.$id.level.tsx",
+      "parent": "/_auth/orgs/$id"
+    },
+    "/_auth/orgs/$id/settings": {
+      "filePath": "_auth/orgs.$id.settings.tsx",
       "parent": "/_auth/orgs/$id"
     }
   }
