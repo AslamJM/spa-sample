@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import useAxios from "../api/client"
 
-type Organization = {
+export type Organization = {
     role_levels: {
         id: number;
         organization_id: string;
@@ -10,6 +10,7 @@ type Organization = {
 } & {
     id: string;
     name: string;
+    hierarchy_limit: number;
     status: boolean;
     created_at: Date;
     updated_at: Date;
@@ -18,10 +19,17 @@ type Organization = {
 export type Role = {
     id: number
     name: string
-    can_create: boolean
-    can_read: boolean
-    can_update: boolean
-    can_delete: boolean
+    form_create: boolean;
+    form_read: boolean;
+    form_update: boolean;
+    form_delete: boolean;
+    admin_create: boolean;
+    admin_read: boolean;
+    admin_update: boolean;
+    admin_delete: boolean;
+    analytics_read: boolean;
+    notification_manage: boolean;
+    hierarchy_manage: boolean;
     users: {
         id: number
         name: string
@@ -31,6 +39,7 @@ export type Role = {
 
 export type RoleLevel = {
     id: number;
+    name: string;
     level: number;
     roles: Role[]
 }
@@ -38,6 +47,7 @@ export type RoleLevel = {
 export type SingleOrg = {
     id: string;
     name: string;
+    hierarchy_limit: number;
     status: boolean;
     created_at: Date;
     updated_at: Date;
@@ -69,7 +79,10 @@ export const useCreateOrg = () => {
 
     const createOrg = async (input: {
         name: string,
+        hierarchy_limit: number,
+        top_level_name: string,
         user: {
+            role_name: string,
             name: string,
             email: string,
             password: string

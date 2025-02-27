@@ -14,10 +14,10 @@ export const useAuth = () => {
 
     const loginUser = async (email: string, password: string) => {
         try {
-            const token = await login({ email, password })
+            const { token, user } = await login({ email, password })
             setAccessToken(token)
-            await initiateUser()
-            return true // Return success status
+            setUser(user)
+            return true
         } catch (error) {
             console.error('Login failed:', error)
             return false

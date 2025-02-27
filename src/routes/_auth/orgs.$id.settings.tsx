@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_auth/orgs/$id/settings")({
 function RouteComponent() {
   const { id } = Route.useParams();
   const { data } = useSingleOrg(id);
-  const { update, remove } = useAbility();
+  const { heirarchy_manage } = useAbility();
   const { update: updateOrg, loading: updateLoading } = useUpdateOrg(id);
   return (
     <div className="space-y-4">
@@ -29,13 +29,13 @@ function RouteComponent() {
           <div className="flex items-center gap-2">
             <Input
               defaultValue={data?.name}
-              disabled={!update}
+              disabled={!heirarchy_manage}
               className="flex-grow"
               name="name"
             />
             <Button
               variant="outline"
-              disabled={!update || updateLoading}
+              disabled={!heirarchy_manage || updateLoading}
               size="icon"
               type="submit"
             >
@@ -50,7 +50,11 @@ function RouteComponent() {
           Deleting organization will delete all data and users associated with
           it.
         </p>
-        <Button variant="destructive" disabled={!remove} className="block">
+        <Button
+          variant="destructive"
+          disabled={!heirarchy_manage}
+          className="block"
+        >
           Delete
         </Button>
       </div>

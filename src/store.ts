@@ -5,10 +5,17 @@ export type User = {
     email: string;
     role: {
         id: number;
-        can_create: boolean;
-        can_read: boolean;
-        can_update: boolean;
-        can_delete: boolean;
+        form_create: boolean;
+        form_read: boolean;
+        form_update: boolean;
+        form_delete: boolean;
+        admin_create: boolean;
+        admin_read: boolean;
+        admin_update: boolean;
+        admin_delete: boolean;
+        analytics_read: boolean;
+        notification_manage: boolean;
+        hierarchy_manage: boolean;
         role_level: {
             level: number;
             organization_id: string;
