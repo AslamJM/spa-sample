@@ -128,34 +128,6 @@ export const useSingleOrg = (id: string) => {
     return { data, isLoading, refetch }
 }
 
-export const useCreateRoleLevel = (id: string) => {
-    const client = useAxios()
-
-    const { refetch } = useSingleOrg(id)
-
-    const createRoleLevel = async (level: number) => {
-        const res = await client.post(`/organizations/${id}/role-levels/${level}`)
-        if (res.status === 201) {
-            return true
-        }
-        return false
-    }
-
-    const { mutate, isPending } = useMutation({
-        mutationFn: createRoleLevel,
-        onSuccess: (res) => {
-            if (res) {
-                refetch()
-            }
-        }
-    })
-
-    return {
-        create: mutate,
-        loading: isPending
-    }
-}
-
 
 export const useCreateRole = (id: string) => {
     const client = useAxios()
@@ -287,3 +259,32 @@ export const useRemoveRole = (id: string,) => {
         loading: isPending
     }
 }
+
+export const useCreateRoleLevel = ({ id }: { id: string }) => {
+    const client = useAxios()
+
+    const { refetch } = useSingleOrg(id)
+
+    const createRoleLevel = async ({ name, level }: { name: string, level: number }) => {
+        const res = await client.post(`/organizations/${id}/role-levels/${level}`, { name })
+        if (res.status === 201) {
+            return true
+        }
+        return false
+    }
+
+    const { mutateAsync, isPending } = useMutation({
+        mutationFn: createRoleLevel,
+        onSuccess: (res) => {
+            if (res) {
+                refetch()
+            }
+        }
+    })
+
+    return {
+        create: mutateAsync,
+        loading: isPending
+    }
+}
+

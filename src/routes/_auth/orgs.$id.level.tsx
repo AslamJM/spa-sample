@@ -1,4 +1,5 @@
 import LoaderComp from "@/components/custom/loader-comp";
+import RoleLevelCreate from "@/components/org/role-level-create";
 import AddRoleForm from "@/components/role/add-role-form";
 import RoleList from "@/components/role/role-list";
 import {
@@ -188,6 +189,17 @@ function RouteComponent() {
             )}
           </div>
         </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-center gap-2">
+          <StepForward className="w-4 h-4 text-orange-500" />
+          <h3 className="text-sm  font-semibold">LEVEL - {search.level}</h3>
+        </div>
+        <hr />
+        <RoleLevelCreate />
       </div>
     );
   }
