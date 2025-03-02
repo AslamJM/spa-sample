@@ -31,7 +31,7 @@ export type Role = {
     notification_manage: boolean;
     hierarchy_manage: boolean;
     users: {
-        id: number
+        id: string
         name: string
         email: string
     }[]

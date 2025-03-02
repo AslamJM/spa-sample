@@ -21,7 +21,7 @@ function RootComponent() {
   }
 
   return (
-    <div className="h-screen">
+    <div className="h-screen bg-[#88AAEEB3] ">
       <Outlet />
       <TanStackRouterDevtools />
     </div>

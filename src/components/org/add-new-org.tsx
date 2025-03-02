@@ -19,7 +19,7 @@ export default function AddNewOrg() {
         <AccordionTrigger>Add New Organization</AccordionTrigger>
         <AccordionContent>
           <form
-            className="space-y-4"
+            className="space-y-4 p-2"
             onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.target as HTMLFormElement);

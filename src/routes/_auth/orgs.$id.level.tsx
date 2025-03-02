@@ -9,11 +9,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import AddUserForm from "@/components/user/add-user-form";
+import UsersList from "@/components/user/users-list";
 import { useAbility } from "@/hooks/use-ability";
-import { useCreateUser, useSingleOrg, useRemoveRole } from "@/hooks/use-org";
+import { useSingleOrg, useRemoveRole } from "@/hooks/use-org";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { StepForward } from "lucide-react";
+import { StepForward, User2Icon } from "lucide-react";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -33,9 +34,7 @@ function RouteComponent() {
 
   const { data, isLoading } = useSingleOrg(params.id);
   const { heirarchy_manage } = useAbility();
-  const { create: createUser, loading: createUserLoading } = useCreateUser({
-    id: params.id,
-  });
+
   const { remove: removeRole, loading: removeRoleLoading } = useRemoveRole(
     params.id
   );
@@ -56,11 +55,23 @@ function RouteComponent() {
       await removeRole({ level: search.level!, role: id });
     };
 
+    const getUsersForRole = () => {
+      if (!search.role) return [];
+      const roles = sectionData.roles.find((r) => r.id === search.role);
+      if (roles) {
+        return roles.users;
+      }
+
+      return [];
+    };
+
     return (
       <div className="space-y-2">
-        <div className="flex items-center justify-center gap-2">
-          <StepForward className="w-4 h-4 text-orange-500" />
-          <h3 className="text-sm  font-semibold">LEVEL - {search.level}</h3>
+        <div className="flex items-center justify-center gap-2 bg-orange-500 py-2 rounded">
+          <StepForward className="w-4 h-4 text-primary" />
+          <h3 className="text-sm  font-semibold">
+            LEVEL - {sectionData.level} {`(${sectionData.name})`}
+          </h3>
         </div>
         <hr />
         <div className="grid grid-cols-2 gap-4">
@@ -89,70 +100,21 @@ function RouteComponent() {
           <div>
             {search.role ? (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold">
+                <h3 className="text-sm font-semibold bg-yellow-300 p-2 rounded">
                   {sectionData.roles.find((r) => r.id === search.role)?.name}
                 </h3>
-                <h5 className="text-sm font-semibold">Users</h5>
+                <h5 className="text-sm flex items-center gap-2 font-semibold">
+                  <User2Icon className="w-4 h-4 text-primary" /> Users
+                </h5>
                 <hr />
-                {sectionData.roles
-                  .find((r) => r.id === search.role)
-                  ?.users.map((u) => (
-                    <div key={u.id}>
-                      <span className="text-sm font-semibold mr-4">
-                        {u.name}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {u.email}
-                      </span>
-                    </div>
-                  ))}
+                <UsersList users={getUsersForRole()} />
                 <hr />
-                {heirarchy_manage && (
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-2">
-                      <AccordionTrigger>Add User</AccordionTrigger>
-                      <AccordionContent>
-                        <form
-                          className="space-y-2"
-                          onSubmit={async (e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.currentTarget);
-                            await createUser({
-                              name: formData.get("name") as string,
-                              email: formData.get("email") as string,
-                              password: formData.get("password") as string,
-                              roleId: search.role!,
-                              level: search.level!,
-                            });
-                            e.currentTarget.reset();
-                          }}
-                        >
-                          <div>
-                            <Input name="name" placeholder="Name" />
-                          </div>
-                          <div>
-                            <Input name="email" placeholder="Email" />
-                          </div>
-                          <div>
-                            <Input name="password" placeholder="Password" />
-                          </div>
-                          <Button
-                            type="submit"
-                            variant="outline"
-                            disabled={createUserLoading}
-                          >
-                            {createUserLoading ? "Creating..." : "Create"}
-                          </Button>
-                        </form>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                )}
+                {heirarchy_manage && <AddUserForm />}
                 {heirarchy_manage && (
                   <Accordion type="single" collapsible>
                     <AccordionItem value="item-3">
                       <AccordionTrigger>Remove Role</AccordionTrigger>
-                      <AccordionContent>
+                      <AccordionContent className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                           This will remove the role and all users with that role
                           will be removed.

@@ -3,7 +3,7 @@ import { useSingleOrg } from "../../hooks/use-org";
 import { Button } from "@/components/ui/button";
 import OrgLevels from "@/components/org/org-levels";
 import LoaderComp from "@/components/custom/loader-comp";
-import { Building2, ChevronRight } from "lucide-react";
+import { Building2, FormInputIcon, Settings2Icon } from "lucide-react";
 
 export const Route = createFileRoute("/_auth/orgs/$id")({
   component: RouteComponent,
@@ -24,18 +24,27 @@ function RouteComponent() {
           <h5 className=" font-semibold flex items-center gap-2">
             <Building2 className="w-4 h-4" /> {data.name}
           </h5>
-          <Button variant="link" asChild>
-            <Link to={`/orgs/$id/settings`} params={{ id: params.id }}>
-              Settings <ChevronRight className="w-4 h-4" />
-            </Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button variant="link" asChild>
+              <Link to={`/forms`} params={{ id: params.id }}>
+                <FormInputIcon className="w-4 h-4" />
+                Forms
+              </Link>
+            </Button>
+            <Button variant="link" asChild>
+              <Link to={`/orgs/$id/settings`} params={{ id: params.id }}>
+                <Settings2Icon className="w-4 h-4" />
+                Settings
+              </Link>
+            </Button>
+          </div>
         </div>
         <hr />
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-1 border-r border-slate-300 ">
+        <div className="grid grid-cols-7 gap-4">
+          <div className="col-span-2 bg-violet-200 p-2 rounded ">
             <OrgLevels data={data} />
           </div>
-          <div className="col-span-2">
+          <div className="col-span-5">
             <Outlet />
           </div>
         </div>

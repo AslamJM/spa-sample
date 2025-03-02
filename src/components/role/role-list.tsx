@@ -1,6 +1,6 @@
 import { Role } from "@/hooks/use-org";
-import { Button } from "../ui/button";
 import { Link, useSearch } from "@tanstack/react-router";
+import { BadgeCheck, Eye, Pencil, PlusCircle, Trash } from "lucide-react";
 
 type Props = {
   roles: Role[];
@@ -12,7 +12,10 @@ export default function RoleList({ roles, orgId }: Props) {
 
   return (
     <div className="space-y-2">
-      <h6 className="text-sm font-semibold">Roles</h6>
+      <div className="flex items-center gap-2">
+        <BadgeCheck className="text-primary w-4 h-4" />
+        <h6 className="text-sm font-semibold">Roles</h6>
+      </div>
       {roles.length === 0 && (
         <h6 className=" text-sm text-muted-foreground">No Roles Created</h6>
       )}
@@ -23,12 +26,13 @@ export default function RoleList({ roles, orgId }: Props) {
           params={{ id: orgId }}
           search={{ role: r.id, level }}
         >
-          <Button
-            variant="link"
-            className="text-muted-foreground text-sm block"
-          >
+          <div className="text-muted-foreground text-sm flex items-center gap-2 ">
             {r.name}
-          </Button>
+            {r.form_create && <PlusCircle className="h-4 w-4 text-primary" />}
+            {r.form_read && <Eye className="h-4 w-4 text-green-500" />}
+            {r.form_create && <Pencil className="h-4 w-4 text-orange-500" />}
+            {r.form_create && <Trash className="h-4 w-4 text-destructive" />}
+          </div>
         </Link>
       ))}
     </div>

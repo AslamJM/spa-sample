@@ -15,7 +15,7 @@ function RouteComponent() {
 
   return (
     <div className="flex items-center justify-center h-full bg-[#88AAEEB3]">
-      <Card className="w-[600px]">
+      <Card className="w-[500px]">
         <CardHeader>
           <CardTitle>Login</CardTitle>
         </CardHeader>

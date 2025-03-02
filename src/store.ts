@@ -3,6 +3,7 @@ import { create } from 'zustand'
 export type User = {
     id: string;
     email: string;
+    name: string
     role: {
         id: number;
         form_create: boolean;

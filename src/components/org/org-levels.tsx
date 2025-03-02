@@ -23,8 +23,8 @@ export default function OrgLevels({ data }: Props) {
           className="block"
         >
           <div className="flex items-center gap-2">
-            <Label>Level {rl.level}</Label>
-            <p className="text-sm text-muted-foreground">{rl.name}</p>
+            <Label className="text-primary">Lv.{rl.level}</Label>
+            <p className="text-sm italic text-muted-foreground">{rl.name}</p>
           </div>
         </Link>
       ))}
@@ -38,7 +38,7 @@ export default function OrgLevels({ data }: Props) {
             className="block"
           >
             <div className="flex items-center gap-2">
-              <Label>Level {el}</Label>
+              <Label>Lv.{el}</Label>
               <p className="text-sm text-muted-foreground">not created</p>
             </div>
           </Link>

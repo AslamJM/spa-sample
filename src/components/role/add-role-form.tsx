@@ -26,16 +26,16 @@ export default function AddRoleForm({ orgId, level }: Props) {
         <AccordionTrigger>Add Role</AccordionTrigger>
         <AccordionContent>
           <form
-            className="space-y-2 p-1 w-[250px]"
+            className="space-y-2 p-2"
             onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const role = {
                 name: formData.get("name") as string,
-                form_create: formData.get("can_create") === "on",
-                form_read: formData.get("can_read") === "on",
-                form_update: formData.get("can_update") === "on",
-                form_delete: formData.get("can_delete") === "on",
+                form_create: formData.get("form_create") === "on",
+                form_read: formData.get("form_read") === "on",
+                form_update: formData.get("form_update") === "on",
+                form_delete: formData.get("form_delete") === "on",
                 admin_create: false,
                 admin_read: false,
                 admin_update: false,
