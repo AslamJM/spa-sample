@@ -17,7 +17,9 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthOrgsIndexImport } from './routes/_auth/orgs.index'
 import { Route as AuthFormsIndexImport } from './routes/_auth/forms/index'
+import { Route as PubFormIdImport } from './routes/pub/form.$id'
 import { Route as AuthOrgsIdImport } from './routes/_auth/orgs.$id'
+import { Route as AuthFormsIdIndexImport } from './routes/_auth/forms/$id.index'
 import { Route as AuthOrgsIdSettingsImport } from './routes/_auth/orgs.$id.settings'
 import { Route as AuthOrgsIdLevelImport } from './routes/_auth/orgs.$id.level'
 
@@ -58,9 +60,21 @@ const AuthFormsIndexRoute = AuthFormsIndexImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
+const PubFormIdRoute = PubFormIdImport.update({
+  id: '/pub/form/$id',
+  path: '/pub/form/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AuthOrgsIdRoute = AuthOrgsIdImport.update({
   id: '/orgs/$id',
   path: '/orgs/$id',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthFormsIdIndexRoute = AuthFormsIdIndexImport.update({
+  id: '/forms/$id/',
+  path: '/forms/$id/',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -115,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthOrgsIdImport
       parentRoute: typeof AuthImport
     }
+    '/pub/form/$id': {
+      id: '/pub/form/$id'
+      path: '/pub/form/$id'
+      fullPath: '/pub/form/$id'
+      preLoaderRoute: typeof PubFormIdImport
+      parentRoute: typeof rootRoute
+    }
     '/_auth/forms/': {
       id: '/_auth/forms/'
       path: '/forms'
@@ -143,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthOrgsIdSettingsImport
       parentRoute: typeof AuthOrgsIdImport
     }
+    '/_auth/forms/$id/': {
+      id: '/_auth/forms/$id/'
+      path: '/forms/$id'
+      fullPath: '/forms/$id'
+      preLoaderRoute: typeof AuthFormsIdIndexImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
@@ -166,12 +194,14 @@ interface AuthRouteChildren {
   AuthOrgsIdRoute: typeof AuthOrgsIdRouteWithChildren
   AuthFormsIndexRoute: typeof AuthFormsIndexRoute
   AuthOrgsIndexRoute: typeof AuthOrgsIndexRoute
+  AuthFormsIdIndexRoute: typeof AuthFormsIdIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthOrgsIdRoute: AuthOrgsIdRouteWithChildren,
   AuthFormsIndexRoute: AuthFormsIndexRoute,
   AuthOrgsIndexRoute: AuthOrgsIndexRoute,
+  AuthFormsIdIndexRoute: AuthFormsIdIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -182,10 +212,12 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/orgs/$id': typeof AuthOrgsIdRouteWithChildren
+  '/pub/form/$id': typeof PubFormIdRoute
   '/forms': typeof AuthFormsIndexRoute
   '/orgs': typeof AuthOrgsIndexRoute
   '/orgs/$id/level': typeof AuthOrgsIdLevelRoute
   '/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
+  '/forms/$id': typeof AuthFormsIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -194,10 +226,12 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/orgs/$id': typeof AuthOrgsIdRouteWithChildren
+  '/pub/form/$id': typeof PubFormIdRoute
   '/forms': typeof AuthFormsIndexRoute
   '/orgs': typeof AuthOrgsIndexRoute
   '/orgs/$id/level': typeof AuthOrgsIdLevelRoute
   '/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
+  '/forms/$id': typeof AuthFormsIdIndexRoute
 }
 
 export interface FileRoutesById {
@@ -207,10 +241,12 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/login': typeof LoginRoute
   '/_auth/orgs/$id': typeof AuthOrgsIdRouteWithChildren
+  '/pub/form/$id': typeof PubFormIdRoute
   '/_auth/forms/': typeof AuthFormsIndexRoute
   '/_auth/orgs/': typeof AuthOrgsIndexRoute
   '/_auth/orgs/$id/level': typeof AuthOrgsIdLevelRoute
   '/_auth/orgs/$id/settings': typeof AuthOrgsIdSettingsRoute
+  '/_auth/forms/$id/': typeof AuthFormsIdIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -221,10 +257,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/orgs/$id'
+    | '/pub/form/$id'
     | '/forms'
     | '/orgs'
     | '/orgs/$id/level'
     | '/orgs/$id/settings'
+    | '/forms/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,10 +270,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/orgs/$id'
+    | '/pub/form/$id'
     | '/forms'
     | '/orgs'
     | '/orgs/$id/level'
     | '/orgs/$id/settings'
+    | '/forms/$id'
   id:
     | '__root__'
     | '/'
@@ -243,10 +283,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/login'
     | '/_auth/orgs/$id'
+    | '/pub/form/$id'
     | '/_auth/forms/'
     | '/_auth/orgs/'
     | '/_auth/orgs/$id/level'
     | '/_auth/orgs/$id/settings'
+    | '/_auth/forms/$id/'
   fileRoutesById: FileRoutesById
 }
 
@@ -255,6 +297,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AboutRoute: typeof AboutRoute
   LoginRoute: typeof LoginRoute
+  PubFormIdRoute: typeof PubFormIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -262,6 +305,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AboutRoute: AboutRoute,
   LoginRoute: LoginRoute,
+  PubFormIdRoute: PubFormIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -277,7 +321,8 @@ export const routeTree = rootRoute
         "/",
         "/_auth",
         "/about",
-        "/login"
+        "/login",
+        "/pub/form/$id"
       ]
     },
     "/": {
@@ -288,7 +333,8 @@ export const routeTree = rootRoute
       "children": [
         "/_auth/orgs/$id",
         "/_auth/forms/",
-        "/_auth/orgs/"
+        "/_auth/orgs/",
+        "/_auth/forms/$id/"
       ]
     },
     "/about": {
@@ -305,6 +351,9 @@ export const routeTree = rootRoute
         "/_auth/orgs/$id/settings"
       ]
     },
+    "/pub/form/$id": {
+      "filePath": "pub/form.$id.tsx"
+    },
     "/_auth/forms/": {
       "filePath": "_auth/forms/index.tsx",
       "parent": "/_auth"
@@ -320,6 +369,10 @@ export const routeTree = rootRoute
     "/_auth/orgs/$id/settings": {
       "filePath": "_auth/orgs.$id.settings.tsx",
       "parent": "/_auth/orgs/$id"
+    },
+    "/_auth/forms/$id/": {
+      "filePath": "_auth/forms/$id.index.tsx",
+      "parent": "/_auth"
     }
   }
 }

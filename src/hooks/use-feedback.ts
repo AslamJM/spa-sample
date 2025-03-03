@@ -1,12 +1,30 @@
 import useAxios from "@/api/client"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "./useAuth"
+import { useParams } from "@tanstack/react-router"
 
 export type FeedBackForm = {
     id: string
     name: string
     description: string
     created_at: Date
+}
+
+export type Reaction = {
+    points: number
+    comments: string
+    created_at: Date
+    name: string
+    phone: string
+    address: string
+}
+
+export type SingleFeedback = {
+    id: string
+    name: string
+    description: string
+    created_at: Date
+    responses: Reaction[]
 }
 
 export const useUsersForm = ({ user, org }: { user: string, org: string }) => {
@@ -66,4 +84,20 @@ export const useCreateFeedbackForm = () => {
     })
 
     return { mutate, isPending }
+}
+
+export const useMySingleFeedback = () => {
+    const client = useAxios()
+    const { id } = useParams({ from: '/_auth/forms/$id/' })
+    const getFeedback = async () => {
+        const { data } = await client.get<{ data: SingleFeedback }>(`forms/me/form/${id}`)
+        return data.data
+    }
+
+    const { data, isLoading } = useQuery({
+        queryKey: ['my_single_feedback', id],
+        queryFn: getFeedback
+    })
+
+    return { data, isLoading }
 }
