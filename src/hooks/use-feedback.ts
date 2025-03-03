@@ -1,5 +1,6 @@
 import useAxios from "@/api/client"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useAuth } from "./useAuth"
 
 export type FeedBackForm = {
     id: string
@@ -23,4 +24,46 @@ export const useUsersForm = ({ user, org }: { user: string, org: string }) => {
     })
 
     return { data, isLoading }
+}
+
+export const useMyFeedbacks = () => {
+    const { user } = useAuth()
+    const client = useAxios()
+
+    const getAllFeedback = async () => {
+        const { data } = await client.get<{ data: FeedBackForm[] }>(`forms/me`)
+        return data.data
+    }
+
+    const queryClient = useQueryClient()
+
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: ['my_feedbacks', user],
+        queryFn: getAllFeedback
+    })
+
+    const addData = (data: FeedBackForm) => {
+        queryClient.setQueryData(['my_feedbacks', user], (old: FeedBackForm[]) => [...old, data])
+    }
+
+    return { data, isLoading, refetch, addData }
+}
+
+export const useCreateFeedbackForm = () => {
+    const client = useAxios()
+    const { addData } = useMyFeedbacks()
+
+    const createFeedback = async (input: { name: string, description: string }) => {
+        const { data } = await client.post<{ data: FeedBackForm }>(`forms`, input)
+        return data.data
+    }
+
+    const { mutate, isPending } = useMutation({
+        mutationFn: createFeedback,
+        onSuccess: (data) => {
+            addData(data)
+        }
+    })
+
+    return { mutate, isPending }
 }
