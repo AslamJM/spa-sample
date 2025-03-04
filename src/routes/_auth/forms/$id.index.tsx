@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon } from "lucide-react";
 import { Reaction, useMySingleFeedback } from "@/hooks/use-feedback";
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_auth/forms/$id/")({
   component: RouteComponent,
@@ -30,10 +31,24 @@ const calculateReactionCount = (reactions: Reaction[]) => {
 function RouteComponent() {
   const { data, isLoading } = useMySingleFeedback();
   const navigate = Route.useNavigate();
+
+  const sortedResponses = useMemo(() => {
+    if (!data) return;
+    const icons = reactionIcons.map((ri) => ({
+      ...ri,
+      count: calculateReactionCount(data.responses)[ri.points],
+    }));
+    return icons.sort((a, b) => b.count - a.count);
+  }, [data]);
+
   return (
     <div>
       <div>
-        <Button variant="ghost" onClick={() => navigate({ to: "/forms" })}>
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: "/forms" })}
+          className="my-2"
+        >
           <ChevronLeftIcon />
           Forms
         </Button>
@@ -45,17 +60,19 @@ function RouteComponent() {
       )}
       {data && (
         <div className="space-y-2">
-          <h5 className="font-bold">{data.name}</h5>
-          <p className="text-sm text-muted-foreground">{data.description}</p>
-          <div className="flex items-center gap-4">
-            {reactionIcons.map((ri) => (
-              <div key={ri.points} className="flex items-center gap-1 ">
-                <ri.Icon className={`w-4 h-4 ${ri.color}`} />
-                <span className="text-sm text-muted-foreground">
-                  {calculateReactionCount(data.responses)[ri.points]}
-                </span>
-              </div>
-            ))}
+          <div className="p-4 bg-violet-100 rounded-lg">
+            <h5 className="font-bold">{data.name}</h5>
+            <p className="text-sm text-muted-foreground">{data.description}</p>
+            <div className="flex items-center gap-4">
+              {sortedResponses?.map((ri) => (
+                <div key={ri.points} className="flex items-center gap-1 ">
+                  <ri.Icon className={`w-4 h-4 ${ri.color}`} />
+                  <span className="text-sm text-muted-foreground">
+                    {ri.count}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="space-y-2 mt-6">
             <h6 className="text-lg font-bold">Feedbacks</h6>

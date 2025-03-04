@@ -68,8 +68,8 @@ function RouteComponent() {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-center gap-2 bg-orange-500 py-2 rounded">
-          <StepForward className="w-4 h-4 text-primary" />
-          <h3 className="text-sm  font-semibold">
+          <StepForward className="w-4 h-4 text-white" />
+          <h3 className="text-sm  font-semibold text-white">
             LEVEL - {sectionData.level} {`(${sectionData.name})`}
           </h3>
         </div>

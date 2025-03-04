@@ -26,12 +26,12 @@ export default function RoleList({ roles, orgId }: Props) {
           params={{ id: orgId }}
           search={{ role: r.id, level }}
         >
-          <div className="text-muted-foreground text-sm flex items-center gap-2 ">
+          <div className="text-muted-foreground text-sm flex items-center gap-1 my-1 hover:underline ">
             {r.name}
-            {r.form_create && <PlusCircle className="h-4 w-4 text-primary" />}
-            {r.form_read && <Eye className="h-4 w-4 text-green-500" />}
-            {r.form_create && <Pencil className="h-4 w-4 text-orange-500" />}
-            {r.form_create && <Trash className="h-4 w-4 text-destructive" />}
+            {r.form_create && <PlusCircle className="h-3 w-3 text-primary" />}
+            {r.form_read && <Eye className="h-3 w-3 text-green-500" />}
+            {r.form_create && <Pencil className="h-3 w-3 text-orange-500" />}
+            {r.form_create && <Trash className="h-3 w-3 text-destructive" />}
           </div>
         </Link>
       ))}
