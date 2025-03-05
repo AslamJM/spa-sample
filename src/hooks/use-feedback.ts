@@ -76,14 +76,14 @@ export const useCreateFeedbackForm = () => {
         return data.data
     }
 
-    const { mutate, isPending } = useMutation({
+    const { mutateAsync, isPending } = useMutation({
         mutationFn: createFeedback,
         onSuccess: (data) => {
             addData(data)
         }
     })
 
-    return { mutate, isPending }
+    return { create: mutateAsync, isPending }
 }
 
 export const useMySingleFeedback = () => {

@@ -9,12 +9,46 @@ import { useParams, useSearch } from "@tanstack/react-router";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Spinner from "../custom/spinner";
+import { z } from "zod";
+import { formOptions, useForm } from "@tanstack/react-form";
 
+const schema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const formOpt = formOptions({
+  defaultValues: {
+    name: "",
+    email: "",
+    password: "",
+  },
+  validators: {
+    onChange: schema,
+  },
+});
 export default function AddUserForm() {
   const { id } = useParams({ from: "/_auth/orgs/$id/level" });
   const { level, role } = useSearch({ from: "/_auth/orgs/$id/level" });
 
-  const { create, loading } = useCreateUser({ id });
+  const { create } = useCreateUser({ id });
+
+  const form = useForm({
+    ...formOpt,
+    onSubmit: async ({ value, formApi }) => {
+      const res = await create({
+        name: value.name,
+        email: value.email,
+        password: value.password,
+        roleId: role!,
+        level: level!,
+      });
+      if (res) {
+        formApi.reset();
+      }
+    },
+  });
 
   return (
     <Accordion type="single" collapsible>
@@ -25,30 +59,58 @@ export default function AddUserForm() {
             className="space-y-2 p-1"
             onSubmit={async (e) => {
               e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              await create({
-                name: formData.get("name") as string,
-                email: formData.get("email") as string,
-                password: formData.get("password") as string,
-                roleId: role!,
-                level: level!,
-              });
-              e.currentTarget.reset();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
           >
             <div>
-              <Input name="name" placeholder="Name" />
+              <form.Field
+                name="name"
+                children={(field) => (
+                  <Input
+                    name="name"
+                    placeholder="Name"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
+              />
             </div>
             <div>
-              <Input name="email" placeholder="Email" />
+              <form.Field
+                name="email"
+                children={(field) => (
+                  <Input
+                    name="email"
+                    placeholder="Email"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
+              />
             </div>
             <div>
-              <Input name="password" placeholder="Password" />
+              <form.Field
+                name="password"
+                children={(field) => (
+                  <Input
+                    name="password"
+                    placeholder="Password"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
+              />
             </div>
-            <Button type="submit" variant="outline" disabled={loading}>
-              {loading && <Spinner />}
-              {loading ? "Creating..." : "Create"}
-            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button type="submit" disabled={!canSubmit}>
+                  {isSubmitting && <Spinner />}
+                  {isSubmitting ? "Creating..." : "Create"}
+                </Button>
+              )}
+            />
           </form>
         </AccordionContent>
       </AccordionItem>
