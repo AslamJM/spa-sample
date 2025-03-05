@@ -1,6 +1,7 @@
 import LoaderComp from "@/components/custom/loader-comp";
 import RoleLevelCreate from "@/components/org/role-level-create";
 import AddRoleForm from "@/components/role/add-role-form";
+import RoleInfo from "@/components/role/role-info";
 import RoleList from "@/components/role/role-list";
 import {
   Accordion,
@@ -100,10 +101,10 @@ function RouteComponent() {
           <div>
             {search.role ? (
               <div className="space-y-2">
-                <h3 className="text-sm font-semibold bg-yellow-300 p-2 rounded">
-                  {sectionData.roles.find((r) => r.id === search.role)?.name}
-                </h3>
-                <h5 className="text-sm flex items-center gap-2 font-semibold">
+                <RoleInfo
+                  role={sectionData.roles.find((r) => r.id === search.role)!}
+                />
+                <h5 className="text-sm flex items-center gap-2 font-semibold mt-4">
                   <User2Icon className="w-4 h-4 text-primary" /> Users
                 </h5>
                 <hr />

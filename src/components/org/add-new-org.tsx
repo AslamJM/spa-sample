@@ -9,9 +9,56 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import Spinner from "../custom/spinner";
+import { formOptions, useForm } from "@tanstack/react-form";
+import { z } from "zod";
+
+const schema = z.object({
+  name: z.string().min(1),
+  hierarchy_limit: z.string().transform((val) => parseInt(val)),
+  top_level_name: z.string().min(1),
+  role_name: z.string().min(1),
+  admin_name: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const formOpts = formOptions({
+  defaultValues: {
+    name: "",
+    hierarchy_limit: "",
+    top_level_name: "",
+    role_name: "",
+    admin_name: "",
+    email: "",
+    password: "",
+  },
+  validators: {
+    onChange: schema,
+  },
+});
 
 export default function AddNewOrg() {
-  const { create, loading } = useCreateOrg();
+  const { create } = useCreateOrg();
+
+  const form = useForm({
+    ...formOpts,
+    onSubmit: async ({ value, formApi }) => {
+      const res = await create({
+        name: value.name,
+        hierarchy_limit: parseInt(value.hierarchy_limit),
+        top_level_name: value.top_level_name,
+        user: {
+          role_name: value.role_name,
+          name: value.admin_name,
+          email: value.email,
+          password: value.password,
+        },
+      });
+      if (res) {
+        formApi.reset();
+      }
+    },
+  });
 
   return (
     <Accordion type="single" collapsible>
@@ -20,69 +67,125 @@ export default function AddNewOrg() {
         <AccordionContent>
           <form
             className="space-y-4 p-2"
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              await create({
-                name: formData.get("name") as string,
-                hierarchy_limit: parseInt(
-                  formData.get("hierarchy_limit") as string
-                ),
-                top_level_name: formData.get("top_level_name") as string,
-                user: {
-                  role_name: formData.get("role_name") as string,
-                  name: formData.get("admin_name") as string,
-                  email: formData.get("email") as string,
-                  password: formData.get("password") as string,
-                },
-              });
-              e.currentTarget.reset();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
           >
             <div className="grid grid-cols-5 gap-4">
-              <Input
-                type="text"
-                placeholder="Organization Name"
+              <form.Field
                 name="name"
-                className="col-span-2"
+                children={(field) => (
+                  <Input
+                    type="text"
+                    placeholder="Organization Name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="col-span-2"
+                  />
+                )}
               />
-              <Input
-                type="number"
-                placeholder="Hierarchy Limit"
+              <form.Field
                 name="hierarchy_limit"
-                className="col-span-1"
+                children={(field) => (
+                  <Input
+                    type="number"
+                    placeholder="Hierarchy Limit"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="col-span-1"
+                  />
+                )}
               />
-              <Input
-                type="text"
-                placeholder="Top Level Name"
+              <form.Field
                 name="top_level_name"
-                className="col-span-2"
+                children={(field) => (
+                  <Input
+                    type="text"
+                    placeholder="Top Level Name"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="col-span-2"
+                  />
+                )}
               />
             </div>
             <div className="space-y-2">
               <Label>Admin User</Label>
               <div className="grid grid-cols-2 gap-4">
-                <Input
-                  type="text"
-                  placeholder="Admin Role Name"
+                <form.Field
                   name="role_name"
+                  children={(field) => (
+                    <Input
+                      type="text"
+                      placeholder="Admin Role Name"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  )}
                 />
-                <Input type="text" placeholder="Admin Name" name="admin_name" />
-                <Input type="email" placeholder="Admin Email" name="email" />
-
-                <Input placeholder="Admin Password" name="password" />
+                <form.Field
+                  name="admin_name"
+                  children={(field) => (
+                    <Input
+                      type="text"
+                      placeholder="Admin Name"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  )}
+                />
+                <form.Field
+                  name="email"
+                  children={(field) => (
+                    <Input
+                      type="email"
+                      placeholder="Admin Email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  )}
+                />
+                <form.Field
+                  name="password"
+                  children={(field) => (
+                    <Input
+                      type="password"
+                      placeholder="Admin Password"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  )}
+                />
               </div>
             </div>
-            <Button type="submit" disabled={loading} className="w-[250px]">
-              {loading ? (
-                <>
-                  <Spinner />
-                  Adding...
-                </>
-              ) : (
-                "Add"
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  className="w-[250px]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Spinner />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add"
+                  )}
+                </Button>
               )}
-            </Button>
+            />
           </form>
         </AccordionContent>
       </AccordionItem>

@@ -134,7 +134,10 @@ export const useCreateRole = (id: string) => {
 
     const { refetch } = useSingleOrg(id)
 
-    const createRole = async ({ level, role }: { level: number, role: Omit<Role, "id" | "users"> }) => {
+    const createRole = async ({ level, role }: {
+        level: number,
+        role: Omit<Role, "id" | "users"> & { parent?: { connect: { id: number } } }
+    }) => {
         const res = await client.post(`/organizations/${id}/roles/${level}`, role)
         console.log(res.data);
 
